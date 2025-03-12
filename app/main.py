@@ -64,10 +64,11 @@ def diagnostic_check(model, output_folder:str, verbose:bool=False) -> None:
 
 
 
-def forecast_expected_value(model, forecast_steps) -> pd.Series:
+def forecast_expected_value(model, forecast_steps, row_id=None, alpha:float=0.5) -> pd.Series:
     
-    mu_hat = model.forecast(steps=forecast_steps)
-
+    res = model.get_forecast(row_id, steps=forecast_steps)
+    
+    mu_hat = res.summary_frame(alpha=alpha)['mean']
     return mu_hat
 
 
@@ -83,12 +84,14 @@ def plot_forecast(time_series:pd.Series, forecast:pd.Series, output_folder:str, 
     plt.savefig(f"{output_folder}forecast.png")
     plt.clf()
 
+
+
 if __name__ == '__main__':
 
     # parameters
-    p:int = 1
-    q:int = 0
-    i:int = 1
+    p:int = 2 # AR(p) order
+    q:int = 1 # MA(q) order
+    i:int = 1 # Diff order
     forecast_steps:int = 100
     n_samples:int = 100
     mean:float = 0.0
@@ -101,13 +104,15 @@ if __name__ == '__main__':
     plot_series(time_series=data, output_file=f"{output_folder}timeseries.png")
 
     # Fit the ARMA model
-    arma_model = tsa.ARIMA(data, order=(p, i, q)).fit()
+    model = tsa.ARIMA(endog=data, order=(p, i, q)).fit()
 
     if verbose:
-        print(arma_model.summary())
+        print(model.summary())
 
-    diagnostic_check(model=arma_model, output_folder=output_folder, verbose=verbose)
+    diagnostic_check(model=model, output_folder=f"{output_folder}residuals/", verbose=verbose)
 
-    forecast = forecast_expected_value(model=arma_model, forecast_steps=forecast_steps)
+    forecast = forecast_expected_value(model=model, forecast_steps=forecast_steps)
     plot_forecast(time_series=data, forecast=forecast, output_folder=output_folder, verbose=verbose)
+
+
     
