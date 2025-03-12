@@ -80,6 +80,7 @@ if __name__ == '__main__':
     seed:int = 0
     offset:float = 0.0
     phi_list:list[float] = [ 0.3, 0.3, 0.3 ]
+    in_house_optim:bool = False
     
     p = len(phi_list)
     initial_state:list[float] = [0.0 for _ in range(p)]
@@ -105,19 +106,29 @@ if __name__ == '__main__':
     model:AR = AR(p=p, c=offset, mu=mean, std=std)
     model.state(new_state=initial_state)
 
-    # Estimate model
-    if verbose:
-        print("Defining optimization problem ... ", end="")
-    optimizer = IPOPT(obj_function=mse_loss, problem_name="AR Estimation", quiet=False)
-    optimizer.add_var_group(name="PHI", n_vars=p, lower=0.0, upper=1.0)
-    if verbose:
-        print("done.")
-        print("Solving problem, please be patient ...")
-    optimizer.solve()
-    sol = optimizer.solution()
+    # ESTIMATE MODEL
+    if in_house_optim:
+        # IPOPT
+        if verbose:
+            print("Defining optimization problem ... ", end="")
+        optimizer = IPOPT(obj_function=mse_loss, problem_name="AR Estimation", quiet=False)
+        optimizer.add_var_group(name="PHI", n_vars=p, lower=0.0, upper=1.0)
+        if verbose:
+            print("done.")
+            print("Solving problem, please be patient ...")
+        optimizer.solve()
+        sol = optimizer.solution()
 
-    # UPDATE MODEL COEFFICIENTS
+    else:
+        # STATSMODEL
+        model = tsa.ARIMA(endog=timeseries, order=(p, 0, 0)).fit()
+        if verbose:
+            print(model.summary())
 
+        # EVALUATE MODEL
+        forecast = utils.forecast_expected_value(model=model, timeseries=timeseries, n_periods=n_periods)
+        utils.diagnostic_check(model=model, output_folder=output_folder, verbose=verbose)
+        utils.plot_forecast(time_series=timeseries, forecast=forecast, output_folder=output_folder, verbose=verbose)
 
 
     
