@@ -72,6 +72,16 @@ def forecast_expected_value(model, forecast_steps) -> pd.Series:
 
 
 
+def plot_forecast(time_series:pd.Series, forecast:pd.Series, output_folder:str, verbose:bool=False) -> None:
+    # Plot the forecast
+    plt.figure(figsize=(10, 6))
+    plt.plot(time_series, label='Original')
+    plt.plot(np.arange(len(time_series), len(time_series) + forecast_steps), forecast, label='Forecast')
+    # plt.fill_between(np.arange(len(time_series), len(time_series) + forecast_steps), conf_int[:, 0], conf_int[:, 1], color='pink', alpha=0.3)
+    plt.title('ARMA Model Forecast')
+    plt.legend()
+    plt.savefig(f"{output_folder}forecast.png")
+    plt.clf()
 
 if __name__ == '__main__':
 
@@ -79,7 +89,7 @@ if __name__ == '__main__':
     p:int = 1
     q:int = 0
     i:int = 1
-    forecast_steps:int = 10
+    forecast_steps:int = 100
     n_samples:int = 100
     mean:float = 0.0
     std:float = 1.0
@@ -98,6 +108,6 @@ if __name__ == '__main__':
 
     diagnostic_check(model=arma_model, output_folder=output_folder, verbose=verbose)
 
-
-
+    forecast = forecast_expected_value(model=arma_model, forecast_steps=forecast_steps)
+    plot_forecast(time_series=data, forecast=forecast, output_folder=output_folder, verbose=verbose)
     
