@@ -1,0 +1,15 @@
+# General
+progressbar2==4.5.0
+argparse==1.4.0
+
+# Data handlpling
+numpy==2.2.3
+pandas==2.2.3
+
+# Graphs
+seaborn==0.13.2
+matplotlib==3.9.2
+openpyxl==3.1.5
+
+# Forecasting
+statsmodels==0.14.4
