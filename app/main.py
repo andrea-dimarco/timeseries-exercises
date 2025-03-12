@@ -1,9 +1,11 @@
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
+import datetime
+
 import statsmodels.api as sm
 import statsmodels.tsa.api as tsa
-import matplotlib.pyplot as plt
-
+import statsmodels.formula.api as smf
 
 
 def get_normal_data(n_samples:int, mean:float=0.0, std:float=1.0, seed:int=0) -> pd.Series:
@@ -64,22 +66,23 @@ def diagnostic_check(model, output_folder:str, verbose:bool=False) -> None:
 
 
 
-def forecast_expected_value(model, forecast_steps, row_id=None, alpha:float=0.5) -> pd.Series:
-    
-    res = model.get_forecast(row_id, steps=forecast_steps)
-    
-    mu_hat = res.summary_frame(alpha=alpha)['mean']
-    return mu_hat
+def forecast_expected_value(model, timeseries:pd.Series, n_periods:int) -> pd.Series:
+    return model.predict(n_periods=n_periods, 
+                         exogenous=timeseries,
+                         return_conf_int=False)
 
 
 
-def plot_forecast(time_series:pd.Series, forecast:pd.Series, output_folder:str, verbose:bool=False) -> None:
+def plot_forecast(time_series:pd.Series, forecast:pd.Series, output_folder:str, verbose:bool=False, model_name:str="ARIMA") -> None:
     # Plot the forecast
     plt.figure(figsize=(10, 6))
     plt.plot(time_series, label='Original')
-    plt.plot(np.arange(len(time_series), len(time_series) + forecast_steps), forecast, label='Forecast')
+    if len(time_series) != len(forecast):
+        plt.plot(np.arange(len(time_series), len(time_series) + len(forecast)), forecast, label='Forecast')
+    else:
+        plt.plot(forecast, label='Forecast')
     # plt.fill_between(np.arange(len(time_series), len(time_series) + forecast_steps), conf_int[:, 0], conf_int[:, 1], color='pink', alpha=0.3)
-    plt.title('ARMA Model Forecast')
+    plt.title(f'{model_name} Model Forecast')
     plt.legend()
     plt.savefig(f"{output_folder}forecast.png")
     plt.clf()
@@ -92,7 +95,7 @@ if __name__ == '__main__':
     p:int = 2 # AR(p) order
     q:int = 1 # MA(q) order
     i:int = 1 # Diff order
-    forecast_steps:int = 100
+    n_periods:int = 1
     n_samples:int = 100
     mean:float = 0.0
     std:float = 1.0
@@ -111,8 +114,9 @@ if __name__ == '__main__':
 
     diagnostic_check(model=model, output_folder=f"{output_folder}residuals/", verbose=verbose)
 
-    forecast = forecast_expected_value(model=model, forecast_steps=forecast_steps)
+    forecast = forecast_expected_value(model=model, timeseries=data, n_periods=n_periods)
     plot_forecast(time_series=data, forecast=forecast, output_folder=output_folder, verbose=verbose)
+
 
 
     
