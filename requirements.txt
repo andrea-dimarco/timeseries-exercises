@@ -3,7 +3,7 @@ progressbar2==4.5.0
 argparse==1.4.0
 
 # Data handlpling
-numpy==2.2.3
+# numpy==2.2.3 conda takes care of this when installing IPOPT
 pandas==2.2.3
 
 # Graphs

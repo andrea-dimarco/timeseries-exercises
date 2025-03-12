@@ -8,12 +8,15 @@ import statsmodels.tsa.api as tsa
 import statsmodels.formula.api as smf
 
 
+
+
 def get_normal_data(n_samples:int, mean:float=0.0, std:float=1.0, seed:int=0) -> pd.Series:
     '''
     Generate univariate time series data from normal distribution of provided eman and std
     '''
     np.random.seed(seed)
     return pd.Series(np.random.normal(loc=mean, scale=std, size=n_samples))
+
 
 
 def get_linear_trend_normal_data(n_samples:int, mean:float=0.0, std:float=1.0, seed:int=0) -> pd.Series:
@@ -25,7 +28,8 @@ def get_linear_trend_normal_data(n_samples:int, mean:float=0.0, std:float=1.0, s
     return pd.Series(data)
 
 
-def plot_series(time_series:pd.Series, output_file:str) -> None:
+
+def plot_timeseries(time_series:pd.Series, output_file:str) -> None:
     '''
     Plot the time series
     '''
@@ -89,6 +93,7 @@ def plot_forecast(time_series:pd.Series, forecast:pd.Series, output_folder:str, 
 
 
 
+
 if __name__ == '__main__':
 
     # parameters
@@ -104,7 +109,7 @@ if __name__ == '__main__':
 
 
     data = get_linear_trend_normal_data(n_samples=n_samples, mean=mean, std=std)
-    plot_series(time_series=data, output_file=f"{output_folder}timeseries.png")
+    plot_timeseries(time_series=data, output_file=f"{output_folder}timeseries.png")
 
     # Fit the ARMA model
     model = tsa.ARIMA(endog=data, order=(p, i, q)).fit()
