@@ -106,10 +106,17 @@ if __name__ == '__main__':
     model.state(new_state=initial_state)
 
     # Estimate model
+    if verbose:
+        print("Defining optimization problem ... ", end="")
     optimizer = IPOPT(obj_function=mse_loss, problem_name="AR Estimation", quiet=False)
-    optimizer.add_var_group(name="PHI", n_vars=p, lower=0.0)
+    optimizer.add_var_group(name="PHI", n_vars=p, lower=0.0, upper=1.0)
+    if verbose:
+        print("done.")
+        print("Solving problem, please be patient ...")
     optimizer.solve()
     sol = optimizer.solution()
+
+    # UPDATE MODEL COEFFICIENTS
 
 
 
