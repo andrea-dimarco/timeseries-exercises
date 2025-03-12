@@ -121,7 +121,7 @@ if __name__ == '__main__':
 
     else:
         # STATSMODEL
-        model = tsa.ARIMA(endog=timeseries, order=(p, 0, 0)).fit()
+        model = utils.arima_model(p=p, i=0, q=0, train_series=timeseries)
         if verbose:
             print(model.summary())
 

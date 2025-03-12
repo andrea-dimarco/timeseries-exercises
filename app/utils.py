@@ -93,6 +93,10 @@ def plot_forecast(time_series:pd.Series, forecast:pd.Series, output_folder:str, 
 
 
 
+def arima_model(p:int, i:int, q:int, train_series:pd.Series):
+    return tsa.ARIMA(endog=train_series, order=(p, i, q)).fit()
+
+
 
 if __name__ == '__main__':
 
@@ -112,7 +116,7 @@ if __name__ == '__main__':
     plot_timeseries(time_series=data, output_file=f"{output_folder}timeseries.png")
 
     # Fit the ARMA model
-    model = tsa.ARIMA(endog=data, order=(p, i, q)).fit()
+    model = arima_model(p=p, i=i, q=q, train_series=data)
 
     if verbose:
         print(model.summary())
