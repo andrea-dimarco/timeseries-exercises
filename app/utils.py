@@ -44,7 +44,7 @@ def plot_timeseries(time_series:pd.Series, output_file:str) -> None:
 def diagnostic_check(model, output_folder:str, verbose:bool=False) -> None:
 
     if verbose:
-        print("Generatinf residual diagnostic check plots ... ", end="")
+        print("Generating residual diagnostic check plots ... ", end="")
     # Plot the residuals
     residuals = model.resid
     plt.figure(figsize=(10, 6))
@@ -95,6 +95,7 @@ def plot_forecast(time_series:pd.Series, forecast:pd.Series, output_folder:str, 
 
 def arima_model(p:int, i:int, q:int, train_series:pd.Series):
     return tsa.ARIMA(endog=train_series, order=(p, i, q)).fit()
+
 
 
 

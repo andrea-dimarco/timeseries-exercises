@@ -3,6 +3,7 @@
 
 # Compiled Python bytecode
 *.py[cod]
+app/__pycache__/
 
 # Log files
 *.log

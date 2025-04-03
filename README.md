@@ -4,20 +4,24 @@ This repositories contains basic utilities for dealing with TimeSeries. Everythi
 
 ## Run scrits
 
-Build the docker image with
+Build the docker image with:
 
 ```
 ./build.sh
 ```
 
-Delete the dockerimage with
+Delete the dockerimage with:
 
 ```
 ./clean.sh
 ```
 
-To run a python script from the `app/` directory use
+To run a python script from the `app/` directory (exclusively from the `app/` directory) use:
 
 ```
 ./run.sh <script>.py
 ```
+
+## Results
+
+Results will be saved in the `data/` folder.
