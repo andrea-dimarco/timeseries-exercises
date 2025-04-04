@@ -34,11 +34,23 @@ class link:
             return ( self.obj_1() is other.obj_1() ) and ( self.obj_2() is other.obj_2() )
         
 
+class View():
+        def __init__(self, obj:Any):
+            if obj is None:
+                raise ValueError("obj cannot be None.")
+            self._obj:Any = obj
+        def __hash__(self):
+            return hash(self._obj)
+        def __eq__(self, other):
+            # TODO: we should be able to see 'True' if a view of an object is equal to the object!
+            return self._obj == other
+    
+
 
 
 
 # TYPES
-class Genere(StrEnum):
+class Genere(Enum):
     uomo = auto()
     donna = auto()
 
@@ -124,15 +136,33 @@ class intGEZ():
 
 
 # OBJECTS
+_IMPIEGATO_DB:dict[str,Impiegato] = dict()
+_PROGETTO_DB:set[Progetto] = set()
+_DIPARTIMENTO_DB:dict[str,Impiegato] = dict()
+
 # TODO: must exist an afferenza link between every Impiegato and Dipartimento
 class Impiegato():
-    def __init__(self, nome:str, cognome:str, nascita:datetime.date, stipendio:intGEZ, data_afferenza:datetime.date, genere:Genere):
+
+    def create_impiegato(id:str, nome:str, cognome:str, nascita:datetime.date, stipendio:intGEZ, data_afferenza:datetime.date, genere:Genere) -> None:
+        if not id in _IMPIEGATO_DB:
+            o:Impiegato = Impiegato(id, nome, cognome, nascita, stipendio, data_afferenza, genere)
+            _IMPIEGATO_DB[id] = o
+        else:
+            raise KeyError(f"Object with id {id} already exists.")
+
+    def get_impiegato(id:str) -> Impiegato.View:
+        return Impiegato.View(_IMPIEGATO_DB[id])
+
+    def __init__(self, id:str, nome:str, cognome:str, nascita:datetime.date, stipendio:intGEZ, data_afferenza:datetime.date, genere:Genere):
+        if id is None:
+            raise ValueError(f"id cannot be None.")
         if nome is None:
-            raise ValueError(f"nome can't be None.")
+            raise ValueError(f"nome cannot be None.")
         if cognome is None:
-            raise ValueError(f"cognome can't be None.")
+            raise ValueError(f"cognome cannot be None.")
         if nascita is None:
-            raise ValueError(f"nascita can't be None.")
+            raise ValueError(f"nascita cannot be None.")
+        self._id:str = id
         self._nome:str = nome
         self._cognome:str = cognome
         self._nascita:datetime.date = nascita
@@ -142,6 +172,8 @@ class Impiegato():
 
     
     # GETTER METHODS
+    def id(self) -> str:
+        return self._id
     def nome(self) -> str:
         return self._nome 
     def cognome(self) -> str:
@@ -171,12 +203,20 @@ class Impiegato():
         self._genere = new_value
 
 
+    # REQUIRED
+    def __hash__(self):
+        return hash(self.id())
+
+    def __eq__(self, other:Any):
+        if other is None or \
+            hash(self) != hash(other):
+            return False
+        else:
+            return self.id() == other.id()
+
+
     # VIEW of OBJ (only has getter methods)
-    class View():
-        def __init__(self, obj:Impiegato):
-            if obj is None:
-                raise ValueError("obj can't be None")
-            self._obj:Impiegato = obj
+    class View(View):
         def nome(self) -> str:
             return self._obj.nome() 
         def cognome(self) -> str:
@@ -193,6 +233,14 @@ class Impiegato():
 
 
 class Progetto():
+
+    def create_progetto(nome:str, budget:intGEZ):
+        obj:Progetto = Progetto(nome, budget)
+        _PROGETTO_DB.add(obj)
+
+    def get_progetto_db() -> frozenset[Progetto]:
+        return frozenset(_PROGETTO_DB)
+
     def __init__(self, nome:str, budget:intGEZ):
         if nome is None:
             raise ValueError(f"nome can't be None.")
@@ -213,13 +261,14 @@ class Progetto():
             raise ValueError(f"value can't be None.")
         self._budget = new_value
 
+    
+    # REQUIRED
+    def __hash__(self):
+        return hash(self.nome())
+
 
     # VIEW of OBJ (only has getter methods)
-    class View():
-        def __init__(self, obj:Progetto):
-            if obj is None:
-                raise ValueError("obj can't be None")
-            self._obj:Progetto = obj
+    class View(View):
         def nome(self) -> str:
             return self._obj.nome() 
         def budget(self) -> str:
@@ -228,6 +277,16 @@ class Progetto():
 
 
 class Dipartimento():
+
+    def create_dipartimento(nome:str, telefono:str) -> None:
+        if nome in _DIPARTIMENTO_DB:
+            raise KeyError(f"Object with is {nome} already exists.")
+        else:
+            _DIPARTIMENTO_DB[nome] = Dipartimento(nome, telefono)
+    
+    def get_dipartimento(nome:str) -> Dipartimento.View:
+        return Dipartimento.View(_DIPARTIMENTO_DB[nome])
+
     def __init__(self, nome:str, telefono:str):
         if nome is None:
             raise ValueError(f"nome can't be None.")
@@ -247,14 +306,22 @@ class Dipartimento():
         if new_value is None:
             raise ValueError(f"value can't be None.")
         self._telefono = new_value
+    
+
+    # REQUIRED
+    def __hash__(self):
+        return hash(self.nome())
+
+    def __eq__(self, other:Any):
+        if other is None or \
+            hash(self) != hash(other):
+            return False
+        else:
+            return self.nome() == other.nome()
 
 
     # VIEW of OBJ (only has getter methods)
-    class View():
-        def __init__(self, obj:Dipartimento):
-            if obj is None:
-                raise ValueError("obj can't be None")
-            self._obj:Dipartimento = obj
+    class View(View):
         def nome(self) -> str:
             return self._obj.nome() 
         def telefono(self) -> str:
@@ -359,4 +426,24 @@ class imp_prog():
 
 
 if __name__ == '__main__':
-    pass
+    Impiegato.create_impiegato(id="0",
+                               nome="Alessio",
+                               cognome="Rossi",
+                               nascita="",
+                               stipendio=intGEZ(50),
+                               data_afferenza="",
+                               genere=Genere.uomo
+                               )
+    Impiegato.create_impiegato(id="1",
+                               nome="Bianca",
+                               cognome="Gialli",
+                               nascita="",
+                               stipendio=intGEZ(200),
+                               data_afferenza="",
+                               genere=Genere.donna
+                               )
+
+    Dipartimento.create_dipartimento(nome="Informatica", telefono="55512345")
+
+    i:Impiegato.View = Impiegato.get_impiegato(id="0")
+    d:Dipartimento.View = Dipartimento.get_dipartimento(nome="Informatica")
