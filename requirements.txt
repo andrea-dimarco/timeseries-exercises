@@ -13,3 +13,7 @@ openpyxl==3.1.5
 
 # Forecasting
 statsmodels==0.14.4
+
+
+# Typing
+beartype==0.1.1

@@ -4,9 +4,8 @@ from enum import *
 from typing import Any
 import datetime
 
-
 # UTILS
-class link:
+class link():
     def __init__(self, obj_1:Any, obj_2:Any):
         if obj_1 is None:
             raise ValueError("obj_1 cannot be None.")
@@ -21,7 +20,7 @@ class link:
     def obj_2(self) -> Any:
         return self.obj_2
     
-    def __hash__(self) -> int:
+    def __hash__(self):
         return hash(tuple(self.obj_1(), self.obj_2()))
     
     def __eq__(self, other:link) -> bool:
@@ -34,7 +33,6 @@ class link:
         else:
             return ( self.obj_1() is other.obj_1() ) and ( self.obj_2() is other.obj_2() )
         
-
 
 class View():
     def __init__(self, obj:Any):
@@ -58,9 +56,11 @@ class Genere(Enum):
 
 
 # DOMAINS
-class intGEZ():
+class IntGEZ():
     def __init__(self, i:int):
-        if i < 0:
+        if i is None:
+            raise ValueError("Value cannot be None.")
+        elif i < 0:
             raise ValueError(f"Value must be >= 0, now {i}.")
         self._i:int = i
     
@@ -70,7 +70,7 @@ class intGEZ():
     def __hash__(self) -> int:
         return hash(self.value())
     
-    def __eq__(self, other:intGEZ|int) -> bool:
+    def __eq__(self, other:IntGEZ) -> bool:
         if other is None or \
             not isinstance(other, type(self)) or \
             hash(other) != hash(self):
@@ -80,61 +80,62 @@ class intGEZ():
         else:
             return self.value() == other.value()
         
-    def __lt__(self, other:intGEZ|int) -> bool:
+    def __lt__(self, other:IntGEZ|int) -> bool:
         if isinstance(other, int):
             return self.value() < other
         elif isinstance(other, type(self)):
             return self.value() < other.value()
         else:
-            raise TypeError(f"Operator < not defined between intGEZ and {type(other)}")
+            raise TypeError(f"Operator < not defined between IntGEZ and {type(other)}")
         
-    def __gt__(self, other:intGEZ|int) -> bool:
+    def __gt__(self, other:IntGEZ|int) -> bool:
         if isinstance(other, int):
             return self.value() > other
         elif isinstance(other, type(self)):
             return self.value() > other.value()
         else:
-            raise TypeError(f"Operator > not defined between intGEZ and {type(other)}")
+            raise TypeError(f"Operator > not defined between IntGEZ and {type(other)}")
         
-    def __le__(self, other:intGEZ|int) -> bool:
+    def __le__(self, other:IntGEZ|int) -> bool:
         if isinstance(other, int):
             return self.value() <= other
         elif isinstance(other, type(self)):
             return self.value() <= other.value()
         else:
-            raise TypeError(f"Operator <= not defined between intGEZ and {type(other)}")
+            raise TypeError(f"Operator <= not defined between IntGEZ and {type(other)}")
     
-    def __le__(self, other:intGEZ|int) -> bool:
+    def __ge__(self, other:IntGEZ|int) -> bool:
         if isinstance(other, int):
             return self.value() >= other
         elif isinstance(other, type(self)):
             return self.value() >= other.value()
         else:
-            raise TypeError(f"Operator >= not defined between intGEZ and {type(other)}")
+            raise TypeError(f"Operator >= not defined between IntGEZ and {type(other)}")
         
-    def __add__(self, other:intGEZ|int) -> bool:
+    def __add__(self, other:IntGEZ|int) -> IntGEZ: 
         if isinstance(other, int):
-            return self.value() + other
+            return IntGEZ(self.value() + other)
         elif isinstance(other, type(self)):
-            return self.value() + other.value()
+            return IntGEZ(self.value() + other.value())
         else:
-            raise TypeError(f"Operator + not defined between intGEZ and {type(other)}")
+            raise TypeError(f"Operator + not defined between IntGEZ and {type(other)}")
     
-    def __mul__(self, other:intGEZ|int) -> bool:
+    def __mul__(self, other:IntGEZ|int) -> IntGEZ:
         if isinstance(other, int):
-            return self.value() * other
+            return IntGEZ(self.value() * other)
         elif isinstance(other, type(self)):
             return self.value() * other.value()
         else:
-            raise TypeError(f"Operator * not defined between intGEZ and {type(other)}")
+            raise TypeError(f"Operator * not defined between IntGEZ and {type(other)}")
         
-    def __truediv__(self, other:intGEZ|int) -> bool:
+    def __truediv__(self, other:IntGEZ|int) -> float:
         if isinstance(other, int):
             return self.value() / other
         elif isinstance(other, type(self)):
             return self.value() / other.value()
         else:
-            raise TypeError(f"Operator / not defined between intGEZ and {type(other)}")
+            raise TypeError(f"Operator / not defined between IntGEZ and {type(other)}")
+
 
 
 # OBJECTS
@@ -145,7 +146,7 @@ _DIPARTIMENTO_DB:dict[str,Impiegato] = dict()
 # TODO: must exist an afferenza link between every Impiegato and Dipartimento
 class Impiegato():
 
-    def create_impiegato(id:str, nome:str, cognome:str, nascita:datetime.date, stipendio:intGEZ, data_afferenza:datetime.date, genere:Genere) -> None:
+    def create_impiegato(id:str, nome:str, cognome:str, nascita:datetime.date, stipendio:IntGEZ, data_afferenza:datetime.date, genere:Genere) -> None:
         if not id in _IMPIEGATO_DB:
             o:Impiegato = Impiegato(id, nome, cognome, nascita, stipendio, data_afferenza, genere)
             _IMPIEGATO_DB[id] = o
@@ -155,7 +156,7 @@ class Impiegato():
     def get_impiegato(id:str) -> Impiegato.View:
         return Impiegato.View(_IMPIEGATO_DB[id])
 
-    def __init__(self, id:str, nome:str, cognome:str, nascita:datetime.date, stipendio:intGEZ, data_afferenza:datetime.date, genere:Genere):
+    def __init__(self, id:str, nome:str, cognome:str, nascita:datetime.date, stipendio:IntGEZ, data_afferenza:datetime.date, genere:Genere):
         if id is None:
             raise ValueError(f"id cannot be None.")
         if nome is None:
@@ -182,7 +183,7 @@ class Impiegato():
         return self._cognome
     def nascita(self) -> datetime.date:
         return self._nascita
-    def stipendio(self) -> intGEZ:
+    def stipendio(self) -> IntGEZ:
         return self._stipendio
     def data_afferenza(self) -> datetime.date:
         return self._data_afferenza
@@ -191,7 +192,7 @@ class Impiegato():
     
 
     # SETTER METHODS
-    def set_stipendio(self, new_value:intGEZ) -> None:
+    def set_stipendio(self, new_value:IntGEZ) -> None:
         if new_value is None:
             raise ValueError(f"value can't be None.")
         self._stipendio = new_value
@@ -209,13 +210,6 @@ class Impiegato():
     def __hash__(self):
         return hash(self.id())
 
-    def __eq__(self, other:Any):
-        if other is None or \
-            hash(self) != hash(other):
-            return False
-        else:
-            return self.id() == other.id()
-
 
     # VIEW of OBJ (only has getter methods)
     class View(View):
@@ -225,7 +219,7 @@ class Impiegato():
             return self._obj.cognome()
         def nascita(self) -> datetime.date:
             return self._obj.nascita()
-        def stipendio(self) -> intGEZ:
+        def stipendio(self) -> IntGEZ:
             return self._obj.stipendio()
         def data_afferenza(self) -> datetime.date:
             return self._obj._data_afferenza()
@@ -236,16 +230,16 @@ class Impiegato():
 
 class Progetto():
 
-    def create_progetto(nome:str, budget:intGEZ):
+    def create_progetto(nome:str, budget:IntGEZ):
         obj:Progetto = Progetto(nome, budget)
         _PROGETTO_DB.add(obj)
 
     def get_progetto_db() -> frozenset[Progetto]:
         return frozenset(_PROGETTO_DB)
 
-    def __init__(self, nome:str, budget:intGEZ):
+    def __init__(self, nome:str, budget:IntGEZ):
         if nome is None:
-            raise ValueError(f"nome can't be None.")
+            raise ValueError(f"nome cannot be None.")
         self._nome:str = nome
         self.set_budget(budget)
 
@@ -258,7 +252,7 @@ class Progetto():
     
 
     # SETTER METHODS
-    def set_budget(self, new_value:intGEZ) -> None:
+    def set_budget(self, new_value:IntGEZ) -> None:
         if new_value is None:
             raise ValueError(f"value can't be None.")
         self._budget = new_value
@@ -432,20 +426,27 @@ if __name__ == '__main__':
                                nome="Alessio",
                                cognome="Rossi",
                                nascita="",
-                               stipendio=intGEZ(50),
+                               stipendio=IntGEZ(50),
                                data_afferenza="",
                                genere=Genere.uomo
-                               )
+                              )
     Impiegato.create_impiegato(id="1",
                                nome="Bianca",
                                cognome="Gialli",
                                nascita="",
-                               stipendio=intGEZ(200),
+                               stipendio=IntGEZ(200),
                                data_afferenza="",
                                genere=Genere.donna
-                               )
+                              )
 
     Dipartimento.create_dipartimento(nome="Informatica", telefono="55512345")
 
     i:Impiegato.View = Impiegato.get_impiegato(id="0")
     d:Dipartimento.View = Dipartimento.get_dipartimento(nome="Informatica")
+
+    # AFFERENZA_DB:afferenza = afferenza()
+
+    # AFFERENZA_DB.add_link_afferenza(i,d)
+
+    print(type(5 / 1))
+
